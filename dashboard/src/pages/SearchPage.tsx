@@ -47,7 +47,12 @@ export default function SearchPage() {
     <section>
       <h2>Semantic search</h2>
       <form className="card" onSubmit={onSubmit} style={{ display: "flex", gap: 8 }}>
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="high lr divergence, CIFAR accuracy…" />
+        <input
+          style={{ flex: 1 }}
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="high lr divergence, CIFAR accuracy…"
+        />
         <button type="submit" disabled={loading || !q.trim()}>
           {loading ? "Searching…" : "Search"}
         </button>

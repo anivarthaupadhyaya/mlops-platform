@@ -3,6 +3,8 @@ ARG SERVICE=api
 ENV SERVICE=${SERVICE}
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/app
+ENV HF_HOME=/app/hf_cache
+ENV TRANSFORMERS_CACHE=/app/hf_cache
 WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends gcc curl && rm -rf /var/lib/apt/lists/*
 COPY requirements.txt .

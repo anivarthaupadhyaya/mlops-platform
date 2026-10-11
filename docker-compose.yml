@@ -125,6 +125,9 @@ services:
       DATABASE_URL: postgresql+asyncpg://mlops:mlops@postgres:5432/mlops
       REDIS_URL: redis://redis:6379/0
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      HF_HOME: /app/hf_cache
+    volumes:
+      - hfcache:/app/hf_cache
     ports:
       - "8003:8003"
     depends_on:
@@ -137,7 +140,7 @@ services:
       interval: 15s
       timeout: 10s
       retries: 20
-      start_period: 180s
+      start_period: 30s
 
   dashboard:
     restart: unless-stopped
@@ -173,3 +176,4 @@ services:
 
 volumes:
   pgdata:
+  hfcache:
