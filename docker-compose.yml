@@ -1,5 +1,6 @@
 services:
   postgres:
+    restart: unless-stopped
     image: pgvector/pgvector:pg16
     environment:
       POSTGRES_USER: mlops
@@ -16,6 +17,7 @@ services:
       retries: 20
 
   redis:
+    restart: unless-stopped
     image: redis:7
     ports:
       - "6379:6379"
@@ -26,6 +28,7 @@ services:
       retries: 20
 
   api:
+    restart: unless-stopped
     build:
       context: .
       args:
@@ -49,6 +52,7 @@ services:
       start_period: 20s
 
   ingest:
+    restart: unless-stopped
     build:
       context: .
       args:
@@ -68,6 +72,7 @@ services:
       retries: 10
 
   writer:
+    restart: unless-stopped
     build:
       context: .
       args:
@@ -91,6 +96,7 @@ services:
       retries: 10
 
   telemetry:
+    restart: unless-stopped
     build:
       context: .
       args:
@@ -109,6 +115,9 @@ services:
       retries: 10
 
   search:
+    profiles: ["search"]
+    restart: unless-stopped
+    mem_limit: 1536m
     build:
       context: .
       args:
@@ -132,15 +141,15 @@ services:
       start_period: 180s
 
   dashboard:
+    restart: unless-stopped
     build:
       context: ./dashboard
     ports:
-      - "80:80"
+      - "8088:80"
     depends_on:
       - api
       - ingest
       - telemetry
-      - search
 
   locust:
     image: python:3.11-slim

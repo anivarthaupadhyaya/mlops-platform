@@ -28,9 +28,15 @@ cp .env.example .env
 docker compose up --build
 ```
 
-Dashboard: http://localhost  
+Dashboard: http://localhost:8088  
 API: http://localhost:8000/health  
 Ingest: http://localhost:8001/health
+
+Semantic search (optional; pulls CPU torch):
+
+```bash
+docker compose --profile search up -d --build search
+```
 
 Host telemetry agent:
 
@@ -67,6 +73,7 @@ Measured against local Docker Compose (20 Locust users, 45s, 50 metrics/request)
 
 | Metric | Value |
 | --- | --- |
-| Requests/s | _pending_ |
-| p95 latency | _pending_ |
-| Stream drain | _pending_ |
+| Requests | 5775 POST `/ingest` (0 failures) |
+| Requests/s | 129.08 overall (steady ~145–149) |
+| p95 latency | 51 ms |
+| Stream drain | writer kept up: Redis lag 0, pending 0, 288758 stream entries = 288758 Postgres rows |
