@@ -17,3 +17,14 @@ def test_search_health_without_model(monkeypatch) -> None:  # type: ignore[no-un
 
 def test_rewrite_falls_back_without_key() -> None:
     assert asyncio.run(rewrite_query("loss curves")) == "loss curves"
+
+
+def test_run_summary_includes_status_and_params() -> None:
+    from types import SimpleNamespace
+
+    from mlops.services.search.backfill import run_summary
+
+    run = SimpleNamespace(status="finished", params={"lr": 0.01})
+    summary = run_summary(run)  # type: ignore[arg-type]
+    assert "finished" in summary
+    assert "0.01" in summary
