@@ -149,6 +149,7 @@ services:
       - api
       - ingest
       - telemetry
+      - search
 
   locust:
     image: python:3.11-slim
