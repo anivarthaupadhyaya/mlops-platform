@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from uuid import UUID
@@ -18,6 +19,7 @@ from mlops.shared.schemas import IndexRequest, SearchHit
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
+    await asyncio.to_thread(embed, "warmup")
     yield
 
 
