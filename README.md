@@ -30,13 +30,8 @@ docker compose up --build
 
 Dashboard: http://localhost:8088  
 API: http://localhost:8000/health  
-Ingest: http://localhost:8001/health
-
-Semantic search (optional; pulls CPU torch):
-
-```bash
-docker compose --profile search up -d --build search
-```
+Ingest: http://localhost:8001/health  
+Search: http://localhost:8003/health
 
 Host telemetry agent:
 
