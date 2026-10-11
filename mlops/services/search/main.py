@@ -11,6 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
 
+from mlops.services.search.backfill import backfill_run_embeddings
 from mlops.services.search.embedder import embed
 from mlops.services.search.rewrite import rewrite_query
 from mlops.shared.db import SessionLocal
@@ -22,6 +23,7 @@ from mlops.shared.schemas import IndexRequest, SearchHit
 async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
     if os.getenv("SKIP_BG_TASKS") != "1":
         await asyncio.to_thread(embed, "warmup")
+        await backfill_run_embeddings()
     yield
 
 
