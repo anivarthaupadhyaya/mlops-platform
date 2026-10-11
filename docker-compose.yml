@@ -115,7 +115,6 @@ services:
       retries: 10
 
   search:
-    profiles: ["search"]
     restart: unless-stopped
     mem_limit: 1536m
     build:
