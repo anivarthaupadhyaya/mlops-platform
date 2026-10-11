@@ -1,0 +1,166 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: mlops
+      POSTGRES_PASSWORD: mlops
+      POSTGRES_DB: mlops
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mlops -d mlops"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  api:
+    build:
+      context: .
+      args:
+        SERVICE: api
+    environment:
+      DATABASE_URL: postgresql+asyncpg://mlops:mlops@postgres:5432/mlops
+      REDIS_URL: redis://redis:6379/0
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  ingest:
+    build:
+      context: .
+      args:
+        SERVICE: ingest
+    environment:
+      DATABASE_URL: postgresql+asyncpg://mlops:mlops@postgres:5432/mlops
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8001:8001"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  writer:
+    build:
+      context: .
+      args:
+        SERVICE: writer
+    environment:
+      DATABASE_URL: postgresql+asyncpg://mlops:mlops@postgres:5432/mlops
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8004:8004"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8004/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  telemetry:
+    build:
+      context: .
+      args:
+        SERVICE: telemetry
+    environment:
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8002:8002"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  search:
+    build:
+      context: .
+      args:
+        SERVICE: search
+    environment:
+      DATABASE_URL: postgresql+asyncpg://mlops:mlops@postgres:5432/mlops
+      REDIS_URL: redis://redis:6379/0
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    ports:
+      - "8003:8003"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 180s
+
+  dashboard:
+    build:
+      context: ./dashboard
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+      - ingest
+      - telemetry
+      - search
+
+  locust:
+    image: python:3.11-slim
+    working_dir: /app
+    volumes:
+      - ./locustfile.py:/app/locustfile.py
+    command: >
+      sh -c "pip install --no-cache-dir locust==2.32.6 httpx==0.28.1
+      && locust -f locustfile.py --headless -u 20 -r 5 -t 45s --host http://ingest:8001 --csv /tmp/locust"
+    environment:
+      API_URL: http://api:8000
+    depends_on:
+      api:
+        condition: service_healthy
+      ingest:
+        condition: service_healthy
+      writer:
+        condition: service_healthy
+    profiles:
+      - load
+
+volumes:
+  pgdata:

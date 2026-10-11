@@ -1,0 +1,10 @@
+.git
+.venv
+venv
+__pycache__
+.pytest_cache
+dashboard/node_modules
+dashboard/dist
+*.md
+.env
+hf_cache

@@ -1,0 +1,26 @@
+:root {
+  color-scheme: dark;
+  --bg: #0f1117;
+  --panel: #171a22;
+  --line: #2a3040;
+  --text: #e8eaed;
+  --muted: #9aa3b5;
+  --accent: #6ee7b7;
+}
+* { box-sizing: border-box; }
+html, body, #root { margin: 0; height: 100%; font-family: Inter, Segoe UI, system-ui, sans-serif; background: var(--bg); color: var(--text); }
+.layout { display: grid; grid-template-columns: 220px 1fr; min-height: 100%; }
+nav { border-right: 1px solid var(--line); padding: 20px 16px; background: var(--panel); }
+nav h1 { font-size: 16px; margin: 0 0 20px; color: var(--accent); }
+nav a { display: block; color: var(--muted); text-decoration: none; padding: 8px 10px; border-radius: 8px; margin-bottom: 4px; }
+nav a.active, nav a:hover { background: #222736; color: var(--text); }
+main { padding: 24px 32px; }
+h2 { margin-top: 0; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 8px; border-bottom: 1px solid var(--line); font-size: 14px; }
+input, button { font: inherit; }
+input { background: #10131a; color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+button { background: var(--accent); color: #082016; border: 0; border-radius: 8px; padding: 8px 12px; cursor: pointer; font-weight: 600; }
+.muted { color: var(--muted); }
+pre { overflow: auto; background: #10131a; padding: 12px; border-radius: 8px; }
